@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Redirecionando para o Jogo Roblox...</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 20px;
+            background: #000000;
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 28px;
+        }
+
+        .info {
+            background: #f0f0f0;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .info p {
+            margin: 8px 0;
+            color: #555;
+            font-size: 14px;
+            word-break: break-all;
+        }
+
+        .info strong {
+            color: #333;
+            display: inline-block;
+            min-width: 120px;
+        }
+
+        .loader {
+            display: inline-block;
+            width: 50px;
+            height: 50px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #764ba2;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px 0;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .message {
+            color: #666;
+            margin: 20px 0;
+            font-size: 16px;
+        }
+
+        .error {
+            background: #fee;
+            border-left: 4px solid #f44336;
+            padding: 12px;
+            margin: 15px 0;
+            border-radius: 5px;
+            color: #d32f2f;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            🎮
+        </div>
+
+        <h1>Redirecionando para Roblox</h1>
+
+        <div id="content">
+            <div class="loader"></div>
+            <div class="message">Preparando o jogo...</div>
+        </div>
+    </div>
+
+    <script>
+        function getUrlParams() {
+            const params = {};
+            const queryString = window.location.search;
+            const urlParams = new URLSearchParams(queryString);
+
+            for (const [key, value] of urlParams) {
+                params[key] = value;
+            }
+
+            return params;
+        }
+
+        function main() {
+            const params = getUrlParams();
+            const placeId = params.placeId || params.placeid;
+            const gameInstanceId = params.gameInstanceId || params.gameinstanceid;
+
+            const contentDiv = document.getElementById('content');
+
+            if (!placeId) {
+                contentDiv.innerHTML = `
+                    <div class="error">
+                        <strong>❌ Erro:</strong> Place ID não encontrado na URL.<br>
+                        Por favor, forneça o parâmetro <code>placeId</code>.
+                    </div>
+                    <div class="info">
+                        <p><strong>Exemplo de uso:</strong></p>
+                        <p><code>?placeId=109983668079237&gameInstanceId=EOJOBID</code></p>
+                    </div>
+                `;
+                return;
+            }
+
+            if (isNaN(placeId) || placeId.length < 5) {
+                contentDiv.innerHTML = `
+                    <div class="error">
+                        <strong>❌ Erro:</strong> O Place ID fornecido não é válido.<br>
+                        Certifique-se de que é um número.
+                    </div>
+                    <div class="info">
+                        <p><strong>Place ID recebido:</strong> ${placeId}</p>
+                    </div>
+                `;
+                return;
+            }
+
+            contentDiv.innerHTML = `
+                <div class="info">
+                    <p><strong>🎮 Place ID:</strong> ${placeId}</p>
+                    ${gameInstanceId ? `<p><strong>🔑 Game Instance:</strong> ${gameInstanceId}</p>` : '<p><strong>ℹ️ Game Instance:</strong> Não especificado</p>'}
+                </div>
+                <div class="loader"></div>
+                <div class="message">Redirecionando instantaneamente...</div>
+            `;
+
+            // URL para abrir no APLICATIVO do Roblox (roblox://)
+            let robloxAppUrl = `roblox://placeId=${placeId}`;
+            
+            if (gameInstanceId) {
+                robloxAppUrl += `&gameInstanceId=${gameInstanceId}`;
+            }
+            
+            // URL de fallback (site) caso o aplicativo não esteja instalado
+            let robloxWebUrl = `https://www.roblox.com/games/${placeId}`;
+            if (gameInstanceId) {
+                robloxWebUrl += `?gameInstanceId=${gameInstanceId}`;
+            }
+
+            // REDIRECIONAMENTO IMEDIATO (sem espera)
+            setTimeout(() => {
+                window.location.href = robloxAppUrl;
+                
+                // Fallback: se não abrir o app, abre o site depois de 2 segundos
+                setTimeout(() => {
+                    window.location.href = robloxWebUrl;
+                }, 2000);
+            }, 100);
+        }
+
+        window.addEventListener('DOMContentLoaded', main);
+    </script>
+</body>
+</html>
